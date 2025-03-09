@@ -29,6 +29,10 @@ class Product
     #[ORM\Column(nullable: true)]
     private ?int $stock_quantity = null;
 
+    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
+
     public function getId(): int
     {
         return $this->id;
@@ -97,6 +101,18 @@ class Product
     public function setStockQuantity(?int $stock_quantity): static
     {
         $this->stock_quantity = $stock_quantity;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

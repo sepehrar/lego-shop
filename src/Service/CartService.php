@@ -1,34 +1,49 @@
 <?php
+namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use \App\Entity\Product;
+use App\Entity\Product;
 
 class CartService
-
 {
-    private $session;
-    public function __construct(SessionInterface $session)
+    private $cart = [];
+
+    public function add(Product $product, int $quantity = 1): void
     {
-        $this->session = $session;
+        $id = $product->getId();
+        if (isset($this->cart[$id])) {
+            $this->cart[$id]['quantity'] += $quantity;
+        } else {
+            $this->cart[$id] = [
+                'product' => $product,
+                'quantity' => $quantity,
+            ];
+        }
     }
 
-    public function add(Product $product)
+    public function remove(Product $product): void
     {
-        $cart = $this->session->get('cart', []);
-        $cart[] = $product;
-        $this->session->set('cart', $cart);
+        $id = $product->getId();
+        if (isset($this->cart[$id])) {
+            unset($this->cart[$id]);
+        }
     }
 
-    public function getCart()
-
+    public function getCart(): array
     {
-        return $this->session->get('cart', []);
+        return $this->cart;
     }
 
-    public function remove(Product $product)
+    public function getTotal(): float
     {
-        $cart = $this->session->get('cart', []);
-        // Logic to remove product from cart
-        $this->session->set('cart', $cart);
+        $total = 0;
+        foreach ($this->cart as $item) {
+            $total += $item['product']->getPrice() * $item['quantity'];
+        }
+        return $total;
+    }
+
+    public function clear(): void
+    {
+        $this->cart = [];
     }
 }
